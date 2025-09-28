@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Калькулятор прогнозування ймовірності нормальних показників мінеральної щільності кісток у дітей</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 420px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+    label {
+      display: flex;
+      justify-content: space-between;
+      margin: 6px 0;
+    }
+    input {
+      width: 150px;
+      padding: 6px;
+    }
+    select {
+      width: 167px;
+      padding: 6px;
+    }
+    button {
+      margin-top: 14px;
+      padding: 8px 14px;
+    }
+    #result {
+      margin-top: 16px;
+      font-weight: bold;
+      background: #f3f6ff;
+      padding: 10px;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Калькулятор прогнозування ймовірності нормальних показників мінеральної щільності кісток у дітей</h1>
+
+  <form id="bmdForm" onsubmit="return false;">
+    <label>Вік (роки): <input type="number" id="x1" required step="0.5" min=7 max=18 value=12></label>
+    <label>Вага (кг): <input type="number" id="x2" required step="0.1" min=0 max=200 value=40></label>
+    <label>ІМТ: <input type="number" id="x3" required step="0.01" min=0 max=200 value=21></label>
+    <label>Рівень вітаміну D (нг/мл): <input type="number" id="x4" required step="0.01" min=0 max=1000 value=30></label>
+    <label>Стать: <select name="sex" id="x5"><option value="1">Хлопець</option><option value="2">Дівчина</option></select></label>
+    <label>Заняття спортом: <select name="sport" id="x6"><option value="1">Не займається спортом</option><option value="2">Займається спортом</option></select></label>
+    <button type="button" onclick="calculateProbability()">Підрахувати ймовірність</button>
+  </form>
+
+  <div id="result">Ймовірність: </div>
+
+  <script>
+    function calculateProbability() {
+      try {
+        let x = [];
+        for (let i = 1; i <= 6; i++) {
+          let input_element = document.getElementById("x" + i);
+          let val = parseFloat(input_element.value);
+          if (isNaN(val)) {
+            let label = input_element.closest("label");
+            let text = label.childNodes[0].textContent.trim().slice(0, -1); 
+            throw new Error(`Не можу конвертувати "${text}" в число`);
+          }
+          x.push(val);
+        }
+
+        let z = 0.255 - 0.51 * x[0] + 0.10 * x[1] - 0.08 * x[2] + 0.012 * x[3] + 1.07 * x[4] + 1.31 * x[5];
+        let result = 1 / (1 + Math.exp(-z));
+
+        document.getElementById("result").textContent = "Ймовірність: " + result;
+        if (result > 0.75) {
+          document.getElementById("result").style.backgroundColor = "green"
+        } else if (result > 0.6) {
+          document.getElementById("result").style.backgroundColor = "yellow"
+        } else {
+          document.getElementById("result").style.backgroundColor = "red"
+        }
+      } catch (err) {
+        document.getElementById("result").textContent = err.message;
+        document.getElementById("result").style.backgroundColor = "red"
+      }
+    }
+  </script>
+</body>
+</html>
